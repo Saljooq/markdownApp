@@ -1,0 +1,46 @@
+version: "3"
+services:
+
+
+  # postgres:
+  #   image: postgres:15
+  #   restart: always
+  #   environment: 
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   logging:
+  #     options:
+  #       max-size: 10m
+  #       max-file: "3"
+  #   ports:
+  #     - '5432:5432'
+  #   volumes:
+  #     - ./db/postgres-data:/var/lib/postgresql/data
+  #     # copy the sql script to create tables
+  #     - ./db/sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+  #     # copy the sql script to fill tables
+  #     - ./db/sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+
+
+  go-backend:
+    image: golang:1.22-alpine  
+    environment:
+      - DEBUG=1
+      - ENV
+    ports:
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - ./backend:/backend
+      - ./dependency/tailwindcss:/dependency/tailwindcss:ro
+      - ./certs/cert.pem:/etc/letsencrypt/live/api.share-portfolio.com/cert.pem:ro
+      - ./certs/privkey.pem:/etc/letsencrypt/live/api.share-portfolio.com/privkey.pem:ro
+      - ./certs/fullchain.pem:/etc/letsencrypt/live/api.share-portfolio.com/fullchain.pem:ro
+    command:
+      - sh
+      - -c
+      - |
+        apk add make
+        cd /backend && make go-dependencies && make dev
+    # links:
+    #   - postgres

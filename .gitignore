@@ -1,0 +1,8 @@
+bin
+tmp
+
+**/bin/**
+**/tmp/**
+
+dependency/tailwindcss
+backend/dependency/tailwindcss
